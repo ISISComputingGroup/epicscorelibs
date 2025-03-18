@@ -120,9 +120,10 @@ def _makebuild():
     if OS_CLASS=='WIN32':
         build['CPPFLAGS'] += [('EPICS_BUILD_DLL', None), ('EPICS_CALL_DLL', None), ('NOMINMAX', None)]
         build['CPPFLAGS'] += [('_CRT_SECURE_NO_DEPRECATE', None), ('_CRT_NONSTDC_NO_DEPRECATE', None), ('__STDC__', 0)]
-        build['CFLAGS'] += ['-Z7', '-Od', '-Ox', '-Oy-', '-GL-']
-        build['CXXFLAGS'] += ['-EHsc', '-GR', '-TP', '-Z7', '-Od', '-Ox', '-Oy-', '-GL-']
-        build['LDFLAGS'] += ['-debug', '-ltcg:off']
+        build['CPPFLAGS'] += [('_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING', None)]
+        build['CFLAGS'] += ['-Z7', '-Od', '-Ox', '-Oy-', '-GL-', '-Gy-']
+        build['CXXFLAGS'] += ['-EHsc', '-GR', '-TP', '-Z7', '-Od', '-Ox', '-Oy-', '-GL-', '-Gy-']
+        build['LDFLAGS'] += ['-debug', '-incremental:no', '-ltcg:off', '-opt:ref,noicf', '-release', '-version:7.0']
         build['LDADD'] += ['netapi32', 'ws2_32', 'advapi32', 'user32']
 
     try:
