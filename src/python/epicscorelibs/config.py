@@ -118,8 +118,21 @@ def _makebuild():
 
     if OS_CLASS=='WIN32':
         build['CPPFLAGS'] += [('EPICS_BUILD_DLL', None), ('EPICS_CALL_DLL', None), ('NOMINMAX', None)]
-        build['CXXFLAGS'] += ['-EHsc']
+        build['CPPFLAGS'] += [('_CRT_SECURE_NO_DEPRECATE', None), ('_CRT_NONSTDC_NO_DEPRECATE', None)]
+        build['CPPFLAGS'] += [('_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING', None), ('__STDC__', 0)]
+        # epics base uses -Ox whereas python passes -O2. Difference is -GF -Gy, we can disable
+        # -Gy with -Gy- but to disable -GF we probably need to disable optimisation and then re-enable
+        # it as in    -Od -Ox    though leaving as is with   -GF   is probably fine
+        # so we may be able to skip the    change_o2_to_ox   in future
+        change_o2_to_ox = ['-Od', '-Ox']
+        build['CFLAGS'] += change_o2_to_ox + ['-Oy-', '-Gy-']
+        build['CXXFLAGS'] += change_o2_to_ox + ['-Oy-', '-Gy-', '-EHsc', '-GR', '-TP']
+        build['LDFLAGS'] += ['-opt:ref', '-release', '-version:7.0']
         build['LDADD'] += ['netapi32', 'ws2_32', 'advapi32', 'user32']
+        if True:
+            build['CFLAGS'] += ['-Z7', '-GL-']
+            build['CXXFLAGS'] += ['-Z7', '-GL-']
+            build['LDFLAGS'] += ['-debug', '-ltcg:off', '-opt:ref,noicf']
 
     try:
         from ._config import cxxdefs
